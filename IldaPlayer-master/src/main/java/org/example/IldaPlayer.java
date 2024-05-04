@@ -33,27 +33,28 @@
 
                 // Load ILDA file and convert to frames
                 List<Frame> frames = IldaFileParser.parse();
+                boolean loop = true;
+                while(loop) {
+                    // Play each frame
+                    for (Frame frame : frames) {
+                        // Prepare data pointer from frame data
+                        easyLase = EasyLaseControl.EasyLaseLibrary.INSTANCE;
+                        Pointer dataPointer = frame.getDataPointer();
+                        int status = easyLase.EasyLaseGetStatus(cardNumber);
+                        // Check if the device is ready to receive a new frame
+                        while (status != 1) {
+                            Thread.sleep(10); // wait before checking again
+                            status = easyLase.EasyLaseGetStatus(cardNumber);
+                        }
 
-                // Play each frame
-                for (Frame frame : frames) {
-                    // Prepare data pointer from frame data
-                    easyLase = EasyLaseControl.EasyLaseLibrary.INSTANCE;
-                    Pointer dataPointer = frame.getDataPointer();
-                    int status = easyLase.EasyLaseGetStatus(cardNumber);
-                    // Check if the device is ready to receive a new frame
-                    while (status != 1) {
-                        Thread.sleep(10); // wait before checking again
-                        status = easyLase.EasyLaseGetStatus(cardNumber);
-                    }
-
-                    // Send the frame data
-                    if (easyLase.EasyLaseWriteFrame(cardNumber, dataPointer, frame.getByteCount(), frame.getPointSpeed())) {
-                        System.out.println("Frame successfully sent.");
-                    } else {
-                        System.out.println("Failed to send frame.");
+                        // Send the frame data
+                        if (easyLase.EasyLaseWriteFrame(cardNumber, dataPointer, frame.getByteCount(), frame.getPointSpeed())) {
+                            System.out.println("Frame successfully sent.");
+                        } else {
+                            System.out.println("Failed to send frame.");
+                        }
                     }
                 }
-
                 // Close the EasyLase device
                 easyLase.EasyLaseClose();
             } catch (Exception e) {
@@ -90,7 +91,7 @@
     class IldaFileParser {
         static List<IldaPlayer.Frame> parse() throws IOException {
             // Use IldaReader to get the IldaFormat which contains the coordinate headers
-            IldaFormat ildaFormat = IldaReader.read("C:\\Users\\richt\\Desktop\\IldaPlayer-master\\IldaPlayer-master\\src\\main\\resources\\ildaFilesFromGif\\028_test_gifFrame.ild");
+            IldaFormat ildaFormat = IldaReader.read("C:\\Users\\richt\\Desktop\\IldaPlayer-master\\IldaPlayer-master\\src\\main\\resources\\ildaFilesFromGif\\034_test_gifFrame.ild");
             List<CoordinateHeader> headers = ildaFormat.getCoordinateHeaders();
             List<IldaPlayer.Frame> frames = new ArrayList<>();
 
@@ -103,17 +104,17 @@
                     short xData = (short) (data.getX()+1000); //add to move left
                     buffer.setShort(offset, xData);  // cast to short to ensure it's two bytes
                     offset += 2;
-                    short yData = (short)(data.getY()+2500); //add to move up
+                    short yData = (short)(data.getY()+1500); //add to move up
                     // Set Y coordinate, ensure big endian
                     buffer.setShort(offset, yData);
                     offset += 2;
 
                     // Set colors in order Blue, Green, Red
-                    buffer.setByte(offset, (byte) data.getBlue());
+                    buffer.setByte(offset, (byte) data.getRed());
                     offset += 1;
                     buffer.setByte(offset, (byte) data.getGreen());
                     offset += 1;
-                    buffer.setByte(offset, (byte) data.getRed());
+                    buffer.setByte(offset, (byte) data.getBlue());
                     offset += 1;
                     // laser off
                     if(data.getStatusCode()==64){
@@ -133,6 +134,7 @@
         }
 
         private static char calculatePointSpeed() {
-            return 6000; //constant point speed
+            return 20000; //constant point speed
         }
+        //FIX COLOR AND COORDINATE SYSTEM
     }
