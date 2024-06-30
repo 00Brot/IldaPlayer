@@ -91,7 +91,7 @@
     class IldaFileParser {
         static List<IldaPlayer.Frame> parse() throws IOException {
             // Use IldaReader to get the IldaFormat which contains the coordinate headers
-            IldaFormat ildaFormat = IldaReader.read("C:\\Users\\richt\\Desktop\\IldaPlayer-master\\IldaPlayer-master\\src\\main\\resources\\ildaFilesFromGif\\034_test_gifFrame.ild");
+            IldaFormat ildaFormat = IldaReader.read("C:\\Users\\richt\\Desktop\\IldaPlayer-master\\IldaPlayer-master\\src\\main\\resources\\ildaFilesFromGif\\035_test_gifFrame.ild");
             List<CoordinateHeader> headers = ildaFormat.getCoordinateHeaders();
             List<IldaPlayer.Frame> frames = new ArrayList<>();
 
@@ -104,7 +104,7 @@
                     short xData = (short) (data.getX()+1000); //add to move left
                     buffer.setShort(offset, xData);  // cast to short to ensure it's two bytes
                     offset += 2;
-                    short yData = (short)(data.getY()+1500); //add to move up
+                    short yData = (short)(data.getY()+2500); //add to move up
                     // Set Y coordinate, ensure big endian
                     buffer.setShort(offset, yData);
                     offset += 2;
